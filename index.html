@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Test for 6Weeks</title>
+     <!--my style-->
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="img/favicon.png">
+</head>
+<body>
+<div class="site-wrap">
+    <div class="main-wrap">
+        <header>
+            <div class="content-wrap">
+                <h1>Test for 6Weeks</h1>
+            </div>
+        </header>
+        <div class="main-content">
+            <div class="content-wrap">
+                <form id="test-form" class="test-form">
+                    <span class="input-wrap">
+                        <input name="name" type="text" required placeholder="Iм'я">
+                    </span>
+                    <span class="input-wrap">
+                        <input name="email" type="email" required placeholder="E-Mail">
+                    </span>
+                    <textarea name="text" placeholder="Ваше повідомлення"></textarea>
+                    <button id="my-submit" type="button">Відправити</button>
+                </form>
+                <div id="result_form"></div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="content-wrap">
+            Test for 6Weeks
+        </div>
+    </footer>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#my-submit").click(
+            function () {
+                sendAjaxForm();
+            }
+        );
+    });
+
+    function sendAjaxForm() {
+        $.ajax({
+            url: "send.php",
+            type: "POST",
+            dataType: "json",
+            data: $("#test-form").serialize(),
+            beforeSend: function (){
+                $('#result_form').html('');
+                $(".error-and-result-text").remove();
+                $('#my-submit').attr('disabled', true).html('Чекайте');
+            },
+            complete: function (){
+                $('#my-submit').removeAttr('disabled').html('Відправити');
+            },
+            success: function (json) {
+                if (json.success) {
+                    $('#test-form').trigger('reset');
+                    $('#result_form').addClass('text-green');
+                    $('#result_form').html('<span class="green-text">' + json.success + '</span>');
+                }
+                if(json.error) {
+                    for(let key in json.error){
+                        $("#test-form input[name='"+ key +"']").after('<span class="error-and-result-text">'+json.error[key]+'</span>');
+                    }
+                    $('#result_form').html('<span class="red-text">'  + json.error.warning + '</span>');
+                }
+            },
+            error: function (result) {
+                $('#result_form').html('Помилка. Дані не надіслано. Спробуйте відправлення пізніше.');
+            }
+        });
+    }
+</script>
+</body>
+</html>
